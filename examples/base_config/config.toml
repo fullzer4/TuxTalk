@@ -1,0 +1,22 @@
+[default]
+prefix = "Tux"
+
+[daemon]
+audio_capture_enabled = true
+audio_device = "default"
+
+[whisper]
+model = "base.en"
+
+[shell]
+type = "zsh"
+
+[actions]
+"open" = "i3-msg exec"
+"close" = "pkill"
+
+[commands]
+"[open] browser" = "google-chrome-stable"
+"[close] browser" = "google-chrome-stable"
+"[open] terminal" = "kitty"
+"[close] terminal" = "kitty"
