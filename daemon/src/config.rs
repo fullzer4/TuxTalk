@@ -1,5 +1,7 @@
+use notify::{Watcher, RecursiveMode, Result as NotifyResult, Config as NotifyConfig, Event, RecommendedWatcher};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
+use std::sync::mpsc::channel;
 use std::process::Command;
 use std::path::PathBuf;
 use std::fs;
@@ -59,10 +61,11 @@ impl Config {
 }
 
 fn get_config_path() -> PathBuf {
-    dirs::config_dir()
-        .expect("Failed to locate the configuration directory")
-        .join("tuxtalk")
-        .join("config.toml")
+    if let Some(config_dir) = dirs::config_dir() {
+        config_dir.join("tuxtalk").join("config.toml")
+    } else {
+        PathBuf::from("/etc/tuxtalk/config.toml")
+    }
 }
 
 pub fn ensure_whisper_model(model_name: &str) -> io::Result<()> {
@@ -79,7 +82,7 @@ pub fn ensure_whisper_model(model_name: &str) -> io::Result<()> {
     let status = Command::new("bash")
         .arg("-c")
         .arg(format!(
-            "curl -o {} https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-{}.bin",
+            "curl -L -o {} https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-{}.bin",
             model_path.display(),
             model_name
         ))
@@ -107,4 +110,37 @@ fn get_model_dir() -> PathBuf {
     }
 
     dir
+}
+
+pub fn watch_config<F: Fn() + Send + 'static>(reload_callback: F) {
+    let config_path = get_config_path();
+    let (tx, rx) = channel();
+
+    let mut watcher: RecommendedWatcher = match RecommendedWatcher::new(
+        move |res: NotifyResult<Event>| {
+            match res {
+                Ok(event) => {
+                    tx.send(event).unwrap();
+                }
+                Err(e) => eprintln!("watch error: {:?}", e),
+            }
+        },
+        NotifyConfig::default(),
+    ) {
+        Ok(w) => w,
+        Err(e) => {
+            eprintln!("Failed to create watcher: {:?}", e);
+            return;
+        }
+    };
+
+    watcher
+        .watch(&config_path, RecursiveMode::NonRecursive)
+        .expect("Failed to watch configuration file");
+
+    std::thread::spawn(move || {
+        for _event in rx {
+            reload_callback();
+        }
+    });
 }

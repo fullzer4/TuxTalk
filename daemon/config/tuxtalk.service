@@ -1,0 +1,14 @@
+[Unit]
+Description=TuxTalk Daemon
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/tuxtalk
+Restart=on-failure
+User=tuxtalk
+Group=tuxtalk
+Environment=RUST_LOG=info
+
+[Install]
+WantedBy=multi-user.target

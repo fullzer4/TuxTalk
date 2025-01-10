@@ -9,7 +9,7 @@ pub fn execute(
 ) -> String {
     if let Some((action_type, arg)) = parse_command(command) {
         if let Some(base_command) = actions.get(action_type) {
-            if let Some(action_arg) = commands.get(command) {
+            if let Some(action_arg) = commands.get(arg) {
                 let full_command = format!("{} {}", base_command, action_arg);
 
                 match Command::new(shell)
@@ -27,7 +27,7 @@ pub fn execute(
                     }
                 }
             } else {
-                format!("Command '{}' not found in configuration.", command)
+                format!("Command argument '{}' not found in [commands] configuration.", arg)
             }
         } else {
             format!("Action '{}' not defined in [actions]", action_type)
@@ -42,7 +42,7 @@ fn parse_command(command: &str) -> Option<(&str, &str)> {
     if let Some(start) = command.find('[') {
         if let Some(end) = command.find(']') {
             let action_type = &command[start + 1..end];
-            let argument = command[end + 2..].trim();
+            let argument = command[end + 1..].trim_start_matches(&[' ', '\t'][..]);
             if !action_type.is_empty() && !argument.is_empty() {
                 return Some((action_type, argument));
             }

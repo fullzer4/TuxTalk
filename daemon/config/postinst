@@ -1,0 +1,14 @@
+#!/bin/bash
+set -e
+
+if ! id -u tuxtalk > /dev/null 2>&1; then
+    useradd --system --no-create-home --group tuxtalk
+fi
+
+chown tuxtalk:tuxtalk /usr/bin/tuxtalk
+chown -R tuxtalk:tuxtalk /etc/tuxtalk
+
+systemctl enable tuxtalk.service
+systemctl start tuxtalk.service
+
+exit 0

@@ -2,7 +2,7 @@
 prefix = "Tux"
 
 [daemon]
-audio_capture_enabled = true
+audio_capture_enabled = false
 audio_device = "default"
 
 [whisper]
@@ -12,11 +12,9 @@ model = "base.en"
 type = "zsh"
 
 [actions]
-"open" = "i3-msg exec"
-"close" = "pkill"
+open = "i3-msg exec"
+close = "pkill"
 
 [commands]
-"[open] browser" = "google-chrome-stable"
-"[close] browser" = "google-chrome-stable"
-"[open] terminal" = "kitty"
-"[close] terminal" = "kitty"
+browser = "google-chrome-stable"
+terminal = "kitty"
