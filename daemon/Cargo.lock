@@ -265,6 +265,7 @@ name = "daemon"
 version = "0.1.0"
 dependencies = [
  "cpal",
+ "dasp_sample",
  "dirs",
  "env_logger",
  "log",

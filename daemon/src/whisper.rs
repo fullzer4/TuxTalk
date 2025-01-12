@@ -1,6 +1,6 @@
-use std::sync::Arc;
-use tokio::sync::Mutex;
 use whisper_rs::{WhisperContext, FullParams, SamplingStrategy};
+use tokio::sync::Mutex;
+use std::sync::Arc;
 use log::error;
 
 pub struct WhisperModel {

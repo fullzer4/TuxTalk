@@ -68,6 +68,10 @@ fn get_config_path() -> PathBuf {
     }
 }
 
+pub fn get_model_path(model_name: &str) -> PathBuf {
+    get_model_dir().join(format!("ggml-{}.bin", model_name))
+}
+
 pub fn ensure_whisper_model(model_name: &str) -> io::Result<()> {
     let model_dir = get_model_dir();
     let model_path = model_dir.join(format!("ggml-{}.bin", model_name));
@@ -122,7 +126,7 @@ pub fn watch_config<F: Fn() + Send + 'static>(reload_callback: F) {
                 Ok(event) => {
                     tx.send(event).unwrap();
                 }
-                Err(e) => eprintln!("watch error: {:?}", e),
+                Err(e) => eprintln!("Watch error: {:?}", e),
             }
         },
         NotifyConfig::default(),
