@@ -14,8 +14,22 @@
       {
         defaultPackage = naersk-lib.buildPackage ./.;
         devShell = with pkgs; mkShell {
-          buildInputs = [ cargo rustc rustfmt pre-commit rustPackages.clippy ];
-          RUST_SRC_PATH = rustPlatform.rustLibSrc;
+          buildInputs = [
+            cargo
+            rustc
+            rustfmt
+            pre-commit
+            rustPackages.clippy
+            clang
+            llvmPackages_16.libclang.lib
+            pkg-config
+            alsa-lib
+          ];
+
+          shellHook = ''
+            export LIBCLANG_PATH="${pkgs.llvmPackages_16.libclang.lib}/lib"
+            export LD_LIBRARY_PATH="${pkgs.alsa-lib}/lib:$LD_LIBRARY_PATH"
+          '';
         };
       }
     );
